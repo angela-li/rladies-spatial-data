@@ -293,10 +293,6 @@ class: inverse, center, middle
 
 ---
 
-![](images/supermarket.png)
-
----
-
 # How are grocery stores and population related?
 
 Time to add a point layer with locations of grocery stores.
@@ -416,6 +412,8 @@ class: inverse, middle, center
 
 ---
 
+class: center, inverse, middle
+
 # 3. Getting our voices out there!
 
 ## Stay tuned for more...
@@ -430,4 +428,4 @@ Slides created via the R package [xaringan](https://github.com/yihui/xaringan) b
 
 Slides available at  <font style="text-transform: lowercase;"><http://bit.ly/rladies-spatial></font> <br>
 
-Contact me at @CivicAng[ela, angela](https://twitter.com/CivicAngela)@rladies.org
+Contact me at @[CivicAngela](https://twitter.com/CivicAngela), angela@rladies.org
