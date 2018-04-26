@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Introduction to Spatial Data Analysis and Mapping in R</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Angela Li   @CivicAngela   Center for Spatial Data Science, UChicago   Slides available at http://bit.ly/rladies-spatial" />
+    <meta name="date" content="2018-04-28" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/rladies.css" rel="stylesheet" />
+    <link href="libs/remark-css/rladies-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Introduction to Spatial Data Analysis and Mapping in R
+## 🌎 🗺<br/>with sf and tmap
+### Angela Li <br> <span class="citation">@CivicAngela</span> <br> Center for Spatial Data Science, UChicago <br> Slides available at <a href="http://bit.ly/rladies-spatial" class="uri">http://bit.ly/rladies-spatial</a>
+### 2018-04-28
+
+---
+
+
+
+
+# Three parts to this talk:
+
+## 1. Why spatial data in R?
+
+## 2. A quick tutorial
+
+## 3. Some thoughts on the future of #rspatial
+
+---
+
+class: inverse, center, middle
+
+# Why spatial data in R?
+
+---
+
+class: inverse
+
+# I had to make a map for a class
+
+![](images/gis-map.png)
+---
+# Here's how you do it with a traditional GIS
+
+![](images/gis-process.png)
+
+---
+
+# This is fine, until
+
+--
+
+👎 You want to remake your map with a slightly different set of data and have to redo everything
+
+--
+
+👎 You want to make a bunch of maps quickly
+
+--
+
+👎 You forgot what buttons you even clicked to make the map
+
+--
+
+👎👎👎 **The GIS software crashes!**
+
+![](images/this-is-fine.png)
+
+---
+
+class: inverse, center, middle
+
+# Enter R
+
+## (and geographic data science)
+
+---
+
+# A map from my thesis
+
+![](images/thesis-map.png)
+
+---
+
+# And the code used to produce it
+
+
+```r
+library(tidyverse)
+library(sf)
+library(tmap)
+
+sales &lt;- read_csv("output/sales-tidy.csv")
+tracts &lt;- st_read("data/orig/shapefiles/detroit_tracts.shp")
+tracts &lt;- rename(tracts, tract = GEOID)
+
+sales &lt;- sales %&gt;% 
+  right_join(tracts, ., by = "tract") 
+
+med_sales_map &lt;- tm_shape(sales, unit = "mi") +
+  tm_fill("med_price", palette = "Blues", breaks = quantile(a$med_price), title = "Median Sales Price") +
+  tm_facets("after_hhf") +
+  tm_shape(tracts) + 
+  tm_borders() +
+  tm_compass(fontsize = 0.6, color.dark = "dark grey") +
+  tm_scale_bar(color.dark = "dark grey")
+
+save_tmap(med_sales_map, "doc/figs/med_sales_map.png")
+```
+
+---
+
+class: center, middle
+
+# Not much code = pretty good results
+
+Thanks, `sf` and `tmap`!
+
+
+![](images/sf-hex.gif)
+
+---
+
+class: inverse, center, middle
+
+# A quick tutorial 
+
+---
+
+# Getting started
+
+Install the `sf` and `tmap` packages.
+
+
+```r
+install.packages("sf")
+install.packages("tmap")
+```
+
+- `sf` stores spatial data as (tidyverse-friendly!) dataframes
+  - `sp` is the original way to store spatial data in R, but it doesn't use dataframes
+  - Many spatial statistics and mapping packages still rely on `sp`, so you'll probably encounter a `SpatialPolygonsDataFrame` at some point. 
+  - No worries, you can convert from `sf` to `sp` and vice versa pretty easily
+- `tmap` provides a quick way to make useful thematic maps and works directly with spatial objects
+  - There are a bunch of other packages you can use to make interactive maps (`mapview`, `leaflet`, `ggplot2`, `shiny`), which I won't go into today
+
+---
+
+# Get some data
+
+- You're looking for "shapefiles" but data with XY coordinates works too
+- Many packages have been developed to acquire spatial data:
+  - `spData`
+  - `tidycensus`
+  - `usaboundaries`
+  - `osmdata`
+  - etc. 
+- If you have address data, you can geocode (translate addresses to latitude and longitude) with the `opencage` package, which I won't discuss today
+- Check out all of these spatial packages later! 
+
+---
+
+# Let's download some data
+
+## Support your [local open data portal](https://data.cityofchicago.org/)
+
+![](images/chi-data-1.png)
+---
+
+![](images/chi-data-2.png)
+
+---
+
+![](images/chi-data-3.png)
+
+---
+
+![](images/chi-data-4.png)
+
+---
+
+# You've downloaded the data
+
+### What the heck are all of these files??
+
+![](images/shapefile-files.png)
+
+In general:
+- .shp is the actual shape ("feature geometry") of the data
+- .dbf represents the attributes associated with each shape
+- .prj tells you how 3-D coordinates are "projected" into a 2-D map
+- .sbn, .sbx, .shx are indexes that make it easier to work quickly with spatial data
+
+FYI: spatial data tends to be BIG (because you have to store all the info about how to make the shapes!)
+---
+
+# Make your first map (1)
+
+
+```r
+# Load package
+library(sf)
+```
+
+```
+## Linking to GEOS 3.6.1, GDAL 2.1.3, proj.4 4.9.3
+```
+
+```r
+# Read in shapefile
+chi &lt;- st_read("data/Neighborhoods_2012b.shp")
+```
+
+```
+## Reading layer `Neighborhoods_2012b' from data source `/Users/angela/Desktop/R-Projects/Teaching/rladies-spatial-data/data/Neighborhoods_2012b.shp' using driver `ESRI Shapefile'
+## Simple feature collection with 98 features and 4 fields
+## geometry type:  MULTIPOLYGON
+## dimension:      XY
+## bbox:           xmin: 1091131 ymin: 1813892 xmax: 1205199 ymax: 1951669
+## epsg (SRID):    NA
+## proj4string:    +proj=tmerc +lat_0=36.66666666666666 +lon_0=-88.33333333333333 +k=0.9999749999999999 +x_0=300000 +y_0=0 +datum=NAD83 +units=us-ft +no_defs
+```
+---
+
+# Make your first map (2)
+
+```r
+# Map it using base R: just shape outlines
+plot(st_geometry(chi))
+```
+
+![](rladies-spatial-data_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+
+---
+
+# Make your first map (3)
+
+```r
+# This maps all the attributes
+plot(chi)
+```
+
+![](rladies-spatial-data_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+
+---
+
+class: inverse, middle
+
+# Get more interesting data
+
+Lots of great cleaned datasets at my research center's website to play with.
+
+&lt;center&gt; https://geodacenter.github.io/data-and-lab/ &lt;/center&gt;
+
+![](images/geoda-data.png)
+
+---
+
+![](images/geoda-data-1.png)
+
+---
+
+![](images/geoda-data-2.png)
+
+---
+
+# Make a second map (1)
+
+
+```r
+chi2 &lt;- st_read("data/ComArea_ACS14_f.shp")
+```
+
+```
+## Reading layer `ComArea_ACS14_f' from data source `/Users/angela/Desktop/R-Projects/Teaching/rladies-spatial-data/data/ComArea_ACS14_f.shp' using driver `ESRI Shapefile'
+## Simple feature collection with 77 features and 86 fields
+## geometry type:  MULTIPOLYGON
+## dimension:      XY
+## bbox:           xmin: -87.94011 ymin: 41.64454 xmax: -87.52414 ymax: 42.02304
+## epsg (SRID):    4326
+## proj4string:    +proj=longlat +ellps=WGS84 +no_defs
+```
+
+For reference:
+- `geometry type` describes the basic structure of the spatial data. You could have points, polygons, lines, and more.
+- `bbox` gives the bounding box for the data, and can be used to crop other layers when you make a map.
+- `epsg (SRID)` is a special code that indicates what projection is being used. When in doubt, `4326` is a good one.
+- `proj4string` refers to the same thing as the EPSG code. If the string starts with `+proj=longlat`, that means your data is **unprojected**. 
+
+---
+# Make a second map (2)
+
+Let's make a choropleth map of population by neighborhood!
+
+
+```r
+# Check what variables we have
+names(chi2)
+```
+
+```
+##  [1] "ComAreaID"  "community"  "TRACTCnt"   "shape_area" "shape_len" 
+##  [6] "Pop2012"    "Pop2014"    "PopChng"    "PopM"       "PopMP"     
+## [11] "PopF"       "PopFP"      "Under5"     "Under5P"    "Under18"   
+## [16] "Under18P"   "Over18"     "Over18P"    "Over21"     "Over21P"   
+## [21] "Over65"     "Over65P"    "Wht14"      "Wht14P"     "Blk14"     
+## [26] "Blk14P"     "AI14"       "AI14P"      "AS14"       "AS14P"     
+## [31] "NHP14"      "NHP14P"     "Oth14"      "Oth14P"     "Hisp14"    
+## [36] "Hisp14P"    "Property_C" "PropCrRt"   "Violent_C"  "VlntCrRt"  
+## [41] "PerCInc14"  "PPop14"     "Pov14"      "field_37"   "ChldPov14" 
+## [46] "NoHS14"     "HSGrad14"   "SmClg14"    "ClgGrad14"  "LaborFrc"  
+## [51] "Unemp14"    "Pov50"      "Pov50P"     "Pov125"     "Pov125P"   
+## [56] "Pov150"     "Pov150P"    "Pov185"     "Pov185P"    "Pov200"    
+## [61] "Pov200P"    "COIave"     "HISave"     "SESave"     "Hlitave"   
+## [66] "BirthRate"  "FertRate"   "LoBirthR"   "PrenScrn"   "PretBrth"  
+## [71] "TeenBirth"  "Assault"    "BrstCancr"  "CancerAll"  "Colorect"  
+## [76] "DiabetM"    "FirearmM"   "InfntMR"    "LungCancer" "ProstateC" 
+## [81] "Stroke"     "ChlBLLS"    "ChlLeadP"   "GonorrF"    "GonorrM"   
+## [86] "Tuberc"     "geometry"
+```
+
+---
+
+```r
+# Map population by neighborhood
+plot(chi2["Pop2014"])
+```
+
+![](rladies-spatial-data_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
+
+---
+
+# Use `tmap` to make a prettier map
+
+
+```r
+library(tmap)
+tm_shape(chi2) +
+  tm_fill("Pop2014", palette = "Purples", 
+          title = "Population by Neighborhood, 2014")
+```
+
+---
+
+```
+## Warning: package 'tmap' was built under R version 3.4.3
+```
+
+![](rladies-spatial-data_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
+
+---
+
+class: inverse, center, middle
+
+# Let's do some spatial analysis!
+
+---
+
+# How ar![](images/supermarket.png)
+
+---
+
+e grocery stores and population related?
+
+Time to add a point layer with locations of grocery stores.
+
+
+```r
+groceries &lt;- st_read("data/groceries.shp")
+```
+
+```
+## Reading layer `groceries' from data source `/Users/angela/Desktop/R-Projects/Teaching/rladies-spatial-data/data/groceries.shp' using driver `ESRI Shapefile'
+## Simple feature collection with 149 features and 14 fields
+## geometry type:  POINT
+## dimension:      XY
+## bbox:           xmin: 1124188 ymin: 1826196 xmax: 1201803 ymax: 1950151
+## epsg (SRID):    NA
+## proj4string:    +proj=tmerc +lat_0=36.66666666666666 +lon_0=-88.33333333333333 +k=0.9999749999999999 +x_0=300000.0000000001 +y_0=0 +ellps=GRS80 +units=us-ft +no_defs
+```
+
+Note that this is a `POINT` object, and that it has a projection: `+proj=tmerc` (Transverse Mercator). If we want to plot this in the same map as the neighborhood boundaries, we will need to make sure both files have the **same projection**.
+
+⭐ This is a key source of frustration when working with spatial data. If some layers aren't showing up when you make a map, check that they all have the same projection! ⭐ 
+
+---
+
+# Project the neighborhood data
+
+You generally project the data that has the `+proj=longlat` string, because it is initially **unprojected**.
+
+```r
+# Get the CRS (coordinate reference system) of the groceries point data
+groceries_crs &lt;- st_crs(groceries)
+
+# Project the neighborhood boundaries
+chi2 &lt;- st_transform(chi2, groceries_crs)
+```
+---
+
+# Plot population and grocery stores
+
+
+```r
+# Plot both
+tm_shape(chi2) +
+  tm_borders() + 
+  tm_fill("Pop2014", palette = "Purples", 
+          title = "Population by Neighborhood, 2014") +
+  tm_shape(groceries) +
+  tm_dots(title = "Groceries", size = 0.1, col = "black")
+```
+
+---
+
+![](rladies-spatial-data_files/figure-html/unnamed-chunk-14-1.png)&lt;!-- --&gt;
+
+---
+
+class: inverse, center, middle
+
+# You can also use dplyr to perform analysis!
+
+---
+
+# Which neighborhoods in Chicago have the most grocery stores?
+
+
+```r
+library(dplyr)
+
+chi2 %&gt;% 
+  st_join(groceries, .) %&gt;% 
+  group_by(community) %&gt;% 
+  tally() %&gt;%
+  arrange(desc(n))
+```
+
+```
+## Simple feature collection with 55 features and 2 fields
+## geometry type:  GEOMETRY
+## dimension:      XY
+## bbox:           xmin: 1124188 ymin: 1826196 xmax: 1201803 ymax: 1950151
+## epsg (SRID):    NA
+## proj4string:    +proj=tmerc +lat_0=36.66666666666666 +lon_0=-88.33333333333333 +k=0.9999749999999999 +x_0=300000.0000000001 +y_0=0 +ellps=GRS80 +units=us-ft +no_defs
+## # A tibble: 55 x 3
+##    community           n                       geometry
+##    &lt;fct&gt;           &lt;int&gt; &lt;sf_geometry [US_survey_foot]&gt;
+##  1 NEAR NORTH SIDE    12 MULTIPOINT (1169391 1910436...
+##  2 LOGAN SQUARE        8 MULTIPOINT (1150226 1915696...
+##  3 LAKE VIEW           7 MULTIPOINT (1165054 1922112...
+##  4 LOWER WEST SIDE     7 MULTIPOINT (1160692 1889319...
+##  5 NEAR WEST SIDE      7 MULTIPOINT (1165889 1894599...
+##  6 BELMONT CRAGIN      6 MULTIPOINT (1132379 1917230...
+##  7 PORTAGE PARK        5 MULTIPOINT (1138161 1931033...
+##  8 SOUTH LAWNDALE      5 MULTIPOINT (1150164 1886133...
+##  9 MCKINLEY PARK       4 MULTIPOINT (1161716 1880466...
+## 10 MORGAN PARK         4 MULTIPOINT (1162303 1832900...
+## # ... with 45 more rows
+```
+
+---
+
+# More advanced spatial analysis involves buffers, distance, intersections, etc.
+
+Code from my thesis:
+
+```r
+get_point_counts_in_buffer &lt;- function(points_to_buffer, 
+                                       points_to_intersect, 
+                                       buffer_size = 500) {
+  number_points_within_buffer &lt;- points_to_buffer %&gt;% 
+    st_buffer(buffer_size) %&gt;% 
+    st_contains(points_to_intersect) %&gt;% 
+    map_dbl(length) %&gt;% 
+    tibble(pts_in_buffer = .)
+  
+  return(number_points_within_buffer)
+}
+```
+
+---
+# And what it did:
+
+![](images/method-counts.png)
+
+---
+
+class: inverse, middle, center
+
+# Now a few words on the future of #rspatial
+
+---
+
+class: inverse, middle, center
+
+# IT NEEDS MORE WOMEN
+
+---
+
+# 1. Submitting issues
+
+![](images/github-issue.png)
+---
+
+# 2. Building communities
+
+![](images/rspatial-slack.png)
+
+---
+
+# 3. Getting our voices out there!
+
+## Stay tuned for more...
+
+---
+
+class: center, middle
+
+# Thanks!
+
+Slides created via the R package [**xaringan**](https://github.com/yihui/xaringan).
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
