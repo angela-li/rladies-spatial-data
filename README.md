@@ -14,7 +14,7 @@ Big thanks also to Jakub Nowosad for [great intro slides on R for GIS](https://n
 
 Check out the forthcoming [Geocomputation with R](https://geocompr.robinlovelace.net) book for more details about this spatial stuff.
 
-Here's the documentation [for sf](https://r-spatial.github.io/sf/) and [for tmap](https://github.com/mtennekes/tmap) in case you're interested in a deeper dive.
+Here's the documentation for [sf](https://r-spatial.github.io/sf/) and for [tmap](https://github.com/mtennekes/tmap) in case you're interested in a deeper dive.
 
 Get in contact
 =================
