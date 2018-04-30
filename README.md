@@ -2,7 +2,7 @@
 
 I gave a talk to R-Ladies Chicago on April 26, 2018 about cool new things in [#rspatial](https://twitter.com/search?q=%23rspatial), like the `sf` and `tmap` packages. Here are the slides from the Meetup - let me know if there are any typos or things I need to fix.
 
-I'd also like to start building the #rspatialladies community, so stay tuned for more regarding this (and reach out if you're interested in helping organize). Expect a Slack channel sometime soon.
+I'd also like to start building the #rspatialladies community! If you identify as female/non-binary, please join our Slack channel [at this link](https://join.slack.com/t/r-spatialladies/shared_invite/enQtMzU1MTIwMjU2NzUyLTBkZjU1NDFiZGU3YzNmN2Y0Y2NiYTM2Njk2ZjI5M2IyMTNiNjI3ZDQ4MzEyMjQxNjM2YWU2ZGVkZWRiYmU1ZDM), and invite women you think would be interested.
 
 [![](images/slide-title.png)](https://angela-li.github.io/slides/2018-04-26/rladies-spatial-data)
 
