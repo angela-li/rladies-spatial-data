@@ -16,6 +16,8 @@ Check out the forthcoming [Geocomputation with R](https://geocompr.robinlovelace
 
 Here's the documentation for [sf](https://r-spatial.github.io/sf/) and for [tmap](https://github.com/mtennekes/tmap) in case you're interested in a deeper dive.
 
+A good source of spatial data is my research center's data website, which can be found at [GeoDa Center Data and Lab](https://geodacenter.github.io/data-and-lab/).
+
 Get in contact
 =================
 Find me on Twitter [@CivicAngela](https://twitter.com/CivicAngela) and email me at angela [at] rladies.org!
